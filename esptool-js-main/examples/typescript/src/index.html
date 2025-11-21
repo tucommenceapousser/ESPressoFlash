@@ -1,105 +1,246 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <title>ESP Tool</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css">
-        <link
-            href="https://fonts.googleapis.com/css?family=Orbitron"
-            rel="stylesheet"
-        />
-        <link rel="icon" href="../assets/favicon.ico" />
-         <script src="https://cdn.jsdelivr.net/npm/xterm@4.19.0/lib/xterm.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
-         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    </head>
-    <body>
-        <h1 align="center"><p><img src="../assets/esp-logo.png" width="42" height="42" style="vertical-align:middle" crossorigin></img> ESP Tool</p></h1>
-        <h4 align="center">A Serial Flasher utility for Espressif chips</h4>
-        <div id="safariErr" style="display:none"><p align="center" style="color:red">This tool is not supported on Safari browser!</p>
+<head>
+    <meta charset="utf-8" />
+    <title>ESP Tool — trhacknon</title>
+
+    <!-- Bootstrap + Xterm -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Orbitron" rel="stylesheet"/>
+
+    <link rel="icon" href="../assets/favicon.ico" />
+    <script src="https://cdn.jsdelivr.net/npm/xterm@4.19.0/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <!-- STYLE DARK HACKER FLUO -->
+    <style>
+        body {
+            background: #050505;
+            color: #c8ffc8;
+            font-family: "Orbitron", monospace;
+            letter-spacing: 1px;
+            padding-bottom: 40px;
+        }
+
+        h1, h3, h4 {
+            color: #00ffea;
+            text-shadow: 0 0 12px #00ffea;
+        }
+
+        table {
+            background: rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid #0aff9d !important;
+            box-shadow: 0 0 12px #0aff9d55;
+        }
+
+        thead {
+            background: #001f1a !important;
+            color: #00ffbf !important;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 255, 180, 0.15) !important;
+        }
+
+        label {
+            color: #8affd4;
+        }
+
+        select {
+            background: #001a16;
+            color: #00ffc3;
+            border: 1px solid #00ffc3;
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+
+        /* Neon buttons */
+        .btn {
+            border-radius: 6px !important;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 1px solid #00ffc3 !important;
+            background: transparent !important;
+            color: #00ffc3 !important;
+            transition: 0.2s;
+        }
+        .btn:hover {
+            background: #00ffc3 !important;
+            color: #000 !important;
+            box-shadow: 0 0 15px #00ffc3;
+        }
+
+        /* Danger neon red */
+        .btn-danger {
+            border-color: #ff2b2b !important;
+            color: #ff2b2b !important;
+        }
+        .btn-danger:hover {
+            background: #ff2b2b !important;
+            color: #000 !important;
+            box-shadow: 0 0 15px #ff2b2b;
+        }
+
+        /* Orange flash neon */
+        .btn-warning {
+            border-color: #ffae00 !important;
+            color: #ffae00 !important;
+        }
+        .btn-warning:hover {
+            background: #ffae00 !important;
+            color: black !important;
+            box-shadow: 0 0 15px #ffae00;
+        }
+
+        /* Neon borders around sections */
+        #program, #console {
+            border: 1px solid #00ffd5;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 0 18px #00ffd555;
+            margin-top: 20px;
+            background: rgba(0, 10, 8, 0.6);
+        }
+
+        hr {
+            border-color: #00ffc3;
+            box-shadow: 0 0 10px #00ffc3;
+        }
+
+        /* Terminal glow */
+        #terminal {
+            margin-top: 20px;
+            border: 1px solid #0aff9d;
+            box-shadow: 0 0 18px #0aff9d55;
+        }
+
+        /* Debug checkbox */
+        .form-check-label {
+            color: #00ffc3;
+        }
+
+        /* Safari error */
+        #safariErr p {
+            color: #ff3b3b !important;
+            font-size: 20px;
+            text-shadow: 0 0 15px #ff3b3b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TITLE -->
+    <h1 align="center">
+        <img src="../assets/esp-logo.png" width="42" height="42" style="vertical-align:middle" crossorigin>
+        ESP Tool — <span style="color:#00ffa6;">trhacknon</span>
+    </h1>
+
+    <h4 align="center">A Serial Flasher utility for Espressif chips — Neon Hacker Edition</h4>
+
+    <!-- SAFARI CHECK -->
+    <div id="safariErr" style="display:none">
+        <p align="center">This tool is not supported on Safari browser!</p>
+    </div>
+
+    <!-- TOP BTN -->
+    <div align="center" style="margin-bottom: 20px;">
+        <a class="btn btn-info" href="./docs/index.html">View API Documentation</a>
+
+        <div class="form-check form-check-inline" style="margin-left: 20px;">
+            <input class="form-check-input" type="checkbox" id="debugLogging">
+            <label class="form-check-label" for="debugLogging">Show Debug log</label>
         </div>
-        <div align="center">
-            <a class="btn btn-info" href="./docs/index.html">View the API Documentation</a>
+    </div>
 
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="debugLogging" value="">
-                <label class="form-check-label" for="debugLogging">Show Debug log</label>
+    <!-- MAIN CONTAINER -->
+    <div class="container" id="main">
+
+        <div id="program">
+            <h3>Program</h3>
+
+            <label for="baudrates">Baudrate:</label>
+            <label style="display:none" id="lblConnTo">Connected to device: </label>
+
+            <select name="baudrates" id="baudrates">
+                <option value="921600">921600</option>
+                <option value="460800">460800</option>
+                <option value="230400">230400</option>
+                <option value="115200">115200</option>
+            </select>
+
+            <br><br>
+
+            <input class="btn btn-info btn-sm" type="button" id="connectButton" value="Connect" />
+            <input class="btn btn-info btn-sm" type="button" id="copyTraceButton" value="Copy Trace" />
+            <input class="btn btn-warning btn-sm" type="button" id="disconnectButton" value="Disconnect" />
+            <input class="btn btn-danger btn-sm" type="button" id="eraseButton" value="Erase Flash" />
+
+            <div class="alert alert-danger alert-dismissible" id="alertDiv" style="display:none; margin-top:10px">
+                <a href="#" class="close" aria-label="close" onclick="$('.alert').hide()">&times;</a>
+                <span id="alertmsg"></span>
             </div>
-          </div>
-        <div class="container" id="main">
-            <hr/>
-            <div id="program">
-                <h3> Program </h3>
-                <label for="baudrates" id="lblBaudrate">Baudrate:</label>
-                <label style="display:none" id="lblConnTo">Connected to device: </label>
-                <select name="baudrates" id="baudrates">
-                    <option value="921600">921600</option>
-                    <option value="460800">460800</option>
-                    <option value="230400">230400</option>
-                    <option value="115200">115200</option>
-                </select>
 
-                <br><br>
+            <div id="files">
+                <table class="table table-striped" id="fileTable">
+                    <thead>
+                        <tr>
+                            <th>Flash Address</th>
+                            <th>File</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
 
-                <input class="btn btn-info btn-sm" type="button" id="connectButton" value="Connect" />
-                <input class="btn btn-info btn-sm" type="button" id="copyTraceButton" value="Copy Trace" />
-                <input class="btn btn-warning btn-sm" type="button" id="disconnectButton" value="Disconnect" />
-                <input class="btn btn-danger btn-sm" type="button" id="eraseButton" value="Erase Flash" />
-                <br>
-
-                <div class="alert alert-danger alert-dismissible" id="alertDiv" style="display:none; margin-top:10px">
-                    <a href="#" class="close" aria-label="close" onclick="$('.alert').hide()">&times;</a>
-                    <span id="alertmsg"></span>
-                </div>
-
-                <div id="files">
-                    <table class="table table-striped" id="fileTable">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Flash Address</th>
-                                <th>File</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                        </tbody>
-                    </table>
-                    <input class="btn btn-info btn-sm" type="button" id="addFile" value="Add File" />
-                    <input class="btn btn-info btn-sm" type="button" id="programButton" value="Program" />
-                </div>
-                <output id="list"></output>
-                <hr/>
+                <input class="btn btn-info btn-sm" type="button" id="addFile" value="Add File" />
+                <input class="btn btn-info btn-sm" type="button" id="programButton" value="Program" />
             </div>
-            <div id="console">
-                <h3>Console </h3>
-                <label style="display:none" id="lblConsoleFor">Connected to device: </label>
-                <label for="consoleBaudrates" id="lblConsoleBaudrate">Baudrate:</label>
-                <select name="consoleBaudrates" id="consoleBaudrates">
-                    <option value="115200">115200</option>
-                    <option value="74880">74880</option>
-                </select>
 
-                <br><br>
-
-                <input class="btn btn-info" type="button" id="consoleStartButton" value="Start" />
-                <input class="btn btn-info" type="button" id="consoleStopButton" value="Stop" />
-                <input class="btn btn-info" type="button" id="resetButton" value="Reset" />
-                <hr/>
-            </div>
-            <div id="terminal"></div>
+            <output id="list"></output>
         </div>
-        <script src="index.ts" type="module"></script>
-        <script>
-            // Safari 3.0+ "[object HTMLElementConstructor]"
-            var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && window['safari'].pushNotification));
 
-            if(isSafari)
-            {
-               document.getElementById("safariErr").style.display = "inline";
-               document.getElementById("main").style.display = "none";
-            }
-        </script>
-    </body>
+        <div id="console">
+            <h3>Console</h3>
+
+            <label style="display:none" id="lblConsoleFor">Connected to device: </label>
+
+            <label for="consoleBaudrates">Baudrate:</label>
+            <select name="consoleBaudrates" id="consoleBaudrates">
+                <option value="115200">115200</option>
+                <option value="74880">74880</option>
+            </select>
+
+            <br><br>
+
+            <input class="btn btn-info" type="button" id="consoleStartButton" value="Start" />
+            <input class="btn btn-info" type="button" id="consoleStopButton" value="Stop" />
+            <input class="btn btn-info" type="button" id="resetButton" value="Reset" />
+        </div>
+
+        <div id="terminal"></div>
+    </div>
+
+    <!-- MAIN SCRIPT -->
+    <script src="index.ts" type="module"></script>
+
+    <!-- SAFARI DETECTION -->
+    <script>
+        var isSafari =
+            /constructor/i.test(window.HTMLElement) ||
+            (function (p) {
+                return p.toString() === "[object SafariRemoteNotification]";
+            })(!window['safari'] || (typeof safari !== 'undefined' && window['safari'].pushNotification));
+
+        if (isSafari) {
+            document.getElementById("safariErr").style.display = "inline";
+            document.getElementById("main").style.display = "none";
+        }
+    </script>
+</body>
 </html>
